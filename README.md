@@ -710,6 +710,19 @@ POST /api/v1/waitlist/:id/cancel
 4. Minimum reservation duration is 30 minutes, maximum is 240 minutes
 5. Party size must be between 1 and 20
 
+### Known Limitations
+
+1. **No Table Combining**: Cannot combine multiple tables for larger parties
+2. **Single Day Reservations**: No support for overnight reservations spanning multiple days
+3. **No Deposit System**: No payment or deposit collection for reservations
+4. **No SMS Notifications**: Only email notifications are implemented (SMS would require Twilio integration)
+5. **No Real-time Updates**: Uses polling instead of WebSockets for availability updates
+6. **No Calendar Sync**: No integration with Google Calendar or iCal
+7. **Limited Analytics**: No built-in reporting or analytics dashboard
+8. **No Multi-language Support**: API responses are in English only
+9. **No Image Upload**: Restaurant and table images are not supported
+10. **Memory-based Email Testing**: MailHog stores emails in memory only (lost on restart)
+
 ## Future Improvements
 
 With more time, I would add:
