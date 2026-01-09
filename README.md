@@ -1,6 +1,10 @@
 # Restaurant Table Reservation System API
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Folexy13/resturant)
+
 A comprehensive REST API for managing restaurant table reservations, built with Node.js, Express, TypeScript, PostgreSQL, and Redis.
+
+**Repository:** [https://github.com/Folexy13/resturant](https://github.com/Folexy13/resturant)
 
 ## Features
 
@@ -40,8 +44,8 @@ A comprehensive REST API for managing restaurant table reservations, built with 
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd restaurant-reservation-api
+   git clone https://github.com/Folexy13/resturant.git
+   cd resturant
    ```
 
 2. **Create environment file**
@@ -796,5 +800,9 @@ The docker-compose.yml includes the following services:
 MIT License
 
 ## Author
+
+**Aluko Folajimi**
+
+Portfolio: [github.com/folexy13](https://github.com/folexy13)
 
 Built for Tallie Backend Engineer Pre-Interview Exercise
