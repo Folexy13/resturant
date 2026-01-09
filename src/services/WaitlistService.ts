@@ -1,4 +1,4 @@
-import { Repository, In } from 'typeorm';
+import { Repository, In, LessThan } from 'typeorm';
 import { AppDataSource } from '../config/database';
 import { Waitlist, WaitlistStatus } from '../entities/Waitlist';
 import { CreateWaitlistDto, UpdateWaitlistDto } from '../dtos/waitlist.dto';
@@ -228,7 +228,7 @@ export class WaitlistService {
         restaurantId: waitlistEntry.restaurantId,
         requestedDate: waitlistEntry.requestedDate,
         status: WaitlistStatus.WAITING,
-        createdAt: { $lt: waitlistEntry.createdAt } as any,
+        createdAt: LessThan(waitlistEntry.createdAt),
       },
     });
 
