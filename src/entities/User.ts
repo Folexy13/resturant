@@ -52,7 +52,7 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   lastLoginAt?: Date;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'text', nullable: true })
   refreshToken?: string;
 
   @CreateDateColumn({ name: 'created_at' })

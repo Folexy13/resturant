@@ -4,6 +4,8 @@ import { Restaurant } from '../entities/Restaurant';
 import { Table } from '../entities/Table';
 import { Reservation, ReservationStatus } from '../entities/Reservation';
 import { Waitlist } from '../entities/Waitlist';
+import { User } from '../entities/User';
+import { RecurringReservation } from '../entities/RecurringReservation';
 
 // Mock Redis before importing app
 jest.mock('../config/redis', () => ({
@@ -45,6 +47,8 @@ jest.mock('../config/database', () => {
       require('../entities/Table').Table,
       require('../entities/Reservation').Reservation,
       require('../entities/Waitlist').Waitlist,
+      require('../entities/User').User,
+      require('../entities/RecurringReservation').RecurringReservation,
     ],
     logging: false,
   });
@@ -86,9 +90,11 @@ describe('Integration Tests', () => {
     // Clear all tables before each test in reverse order of dependencies
     if (testDataSource && testDataSource.isInitialized) {
       await testDataSource.query('DELETE FROM reservations');
+      await testDataSource.query('DELETE FROM recurring_reservations');
       await testDataSource.query('DELETE FROM waitlist');
       await testDataSource.query('DELETE FROM tables');
       await testDataSource.query('DELETE FROM restaurants');
+      await testDataSource.query('DELETE FROM users');
     }
   });
 
@@ -418,6 +424,161 @@ describe('Integration Tests', () => {
 
         expect(confirmResponse.body.success).toBe(true);
         expect(confirmResponse.body.data.status).toBe(ReservationStatus.CONFIRMED);
+      });
+    });
+  });
+
+  describe('Authentication API', () => {
+    describe('POST /api/v1/auth/register', () => {
+      it('should register a new user successfully', async () => {
+        const userData = {
+          name: 'Test User',
+          email: 'test@example.com',
+          password: 'password123',
+          phone: '555-1234',
+        };
+
+        const response = await request(app)
+          .post('/api/v1/auth/register')
+          .send(userData)
+          .expect(201);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.user.name).toBe('Test User');
+        expect(response.body.data.user.email).toBe('test@example.com');
+        expect(response.body.data.tokens.accessToken).toBeDefined();
+        expect(response.body.data.tokens.refreshToken).toBeDefined();
+      });
+
+      it('should fail with duplicate email', async () => {
+        const userData = {
+          name: 'Test User',
+          email: 'duplicate@example.com',
+          password: 'password123',
+        };
+
+        // Register first user
+        await request(app)
+          .post('/api/v1/auth/register')
+          .send(userData)
+          .expect(201);
+
+        // Try to register with same email
+        const response = await request(app)
+          .post('/api/v1/auth/register')
+          .send(userData)
+          .expect(409);
+
+        expect(response.body.success).toBe(false);
+        expect(response.body.message).toContain('already exists');
+      });
+    });
+
+    describe('POST /api/v1/auth/login', () => {
+      it('should login successfully with valid credentials', async () => {
+        // Register a user first
+        await request(app)
+          .post('/api/v1/auth/register')
+          .send({
+            name: 'Login Test User',
+            email: 'login@example.com',
+            password: 'password123',
+          })
+          .expect(201);
+
+        // Login
+        const response = await request(app)
+          .post('/api/v1/auth/login')
+          .send({
+            email: 'login@example.com',
+            password: 'password123',
+          })
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.tokens.accessToken).toBeDefined();
+      });
+
+      it('should fail with invalid credentials', async () => {
+        const response = await request(app)
+          .post('/api/v1/auth/login')
+          .send({
+            email: 'nonexistent@example.com',
+            password: 'wrongpassword',
+          })
+          .expect(401);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+
+    describe('GET /api/v1/auth/profile', () => {
+      it('should return user profile with valid token', async () => {
+        // Register and get token
+        const registerResponse = await request(app)
+          .post('/api/v1/auth/register')
+          .send({
+            name: 'Profile Test User',
+            email: 'profile@example.com',
+            password: 'password123',
+          })
+          .expect(201);
+
+        const token = registerResponse.body.data.tokens.accessToken;
+
+        // Get profile
+        const response = await request(app)
+          .get('/api/v1/auth/profile')
+          .set('Authorization', `Bearer ${token}`)
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.email).toBe('profile@example.com');
+      });
+
+      it('should fail without token', async () => {
+        const response = await request(app)
+          .get('/api/v1/auth/profile')
+          .expect(401);
+
+        expect(response.body.success).toBe(false);
+      });
+    });
+  });
+
+  describe('Timezone API', () => {
+    describe('GET /api/v1/timezones', () => {
+      it('should return common timezones', async () => {
+        const response = await request(app)
+          .get('/api/v1/timezones')
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeGreaterThan(0);
+        expect(response.body.data[0]).toHaveProperty('value');
+        expect(response.body.data[0]).toHaveProperty('label');
+        expect(response.body.data[0]).toHaveProperty('offset');
+      });
+    });
+
+    describe('GET /api/v1/timezones/validate/:timezone', () => {
+      it('should validate a valid timezone', async () => {
+        const response = await request(app)
+          .get('/api/v1/timezones/validate/America%2FNew_York')
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.isValid).toBe(true);
+      });
+
+      it('should invalidate an invalid timezone', async () => {
+        const response = await request(app)
+          .get('/api/v1/timezones/validate/Invalid%2FTimezone')
+          .expect(200);
+
+        expect(response.body.success).toBe(true);
+        expect(response.body.data.isValid).toBe(false);
       });
     });
   });
