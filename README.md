@@ -84,6 +84,26 @@ A comprehensive REST API for managing restaurant table reservations, built with 
 
 ## 📚 API Documentation
 
+### 🔗 Swagger UI (Interactive Documentation)
+
+The API includes interactive Swagger documentation. Once the server is running, access it at:
+
+```
+http://localhost:3000/api-docs
+```
+
+**Features:**
+- Interactive API explorer
+- Try out endpoints directly from the browser
+- View request/response schemas
+- Authentication support (enter JWT token)
+- Download OpenAPI specification
+
+**OpenAPI JSON:**
+```
+http://localhost:3000/api-docs.json
+```
+
 ### Base URL
 ```
 http://localhost:3000/api/v1

@@ -1,8 +1,10 @@
 import express, { Application } from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import 'reflect-metadata';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { swaggerSpec } from './config/swagger';
 
 export function createApp(): Application {
   const app = express();
@@ -20,6 +22,19 @@ export function createApp(): Application {
     });
   }
 
+  // Swagger documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Restaurant Reservation API Documentation',
+  }));
+
+  // Swagger JSON endpoint
+  app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+
   // API routes
   app.use('/api/v1', routes);
 
@@ -29,7 +44,7 @@ export function createApp(): Application {
       success: true,
       message: 'Restaurant Reservation API',
       version: '1.0.0',
-      documentation: '/api/v1/health',
+      documentation: '/api-docs',
     });
   });
 
