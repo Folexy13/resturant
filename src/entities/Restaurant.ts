@@ -33,6 +33,9 @@ export class Restaurant {
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone?: string;
 
+  @Column({ type: 'varchar', length: 100, default: 'UTC' })
+  timezone!: string;
+
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive!: boolean;
 

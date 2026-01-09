@@ -10,6 +10,8 @@ import {
 } from 'typeorm';
 import { Restaurant } from './Restaurant';
 import { Table } from './Table';
+import { User } from './User';
+import { RecurringReservation } from './RecurringReservation';
 
 export enum ReservationStatus {
   PENDING = 'pending',
@@ -78,6 +80,24 @@ export class Reservation {
 
   @Column({ type: 'varchar', length: 255, name: 'cancellation_reason', nullable: true })
   cancellationReason?: string;
+
+  @Column({ type: 'uuid', name: 'user_id', nullable: true })
+  userId?: string;
+
+  @Column({ type: 'uuid', name: 'recurring_reservation_id', nullable: true })
+  recurringReservationId?: string;
+
+  @ManyToOne(() => User, (user) => user.reservations, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user?: User;
+
+  @ManyToOne(() => RecurringReservation, (recurring) => recurring.reservations, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'recurring_reservation_id' })
+  recurringReservation?: RecurringReservation;
 
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.reservations, {
     onDelete: 'CASCADE',

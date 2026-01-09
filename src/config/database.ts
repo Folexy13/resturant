@@ -4,6 +4,8 @@ import { Restaurant } from '../entities/Restaurant';
 import { Table } from '../entities/Table';
 import { Reservation } from '../entities/Reservation';
 import { Waitlist } from '../entities/Waitlist';
+import { User } from '../entities/User';
+import { RecurringReservation } from '../entities/RecurringReservation';
 
 dotenv.config();
 
@@ -16,7 +18,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'restaurant_db',
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
-  entities: [Restaurant, Table, Reservation, Waitlist],
+  entities: [Restaurant, Table, Reservation, Waitlist, User, RecurringReservation],
   migrations: [],
   subscribers: [],
 });

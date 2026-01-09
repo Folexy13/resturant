@@ -4,3 +4,7 @@ export { ReservationService, TimeSlot, AvailabilityResult } from './ReservationS
 export { WaitlistService } from './WaitlistService';
 export { CacheService } from './CacheService';
 export { NotificationService, NotificationResult } from './NotificationService';
+export { AuthService } from './AuthService';
+export { EmailService } from './EmailService';
+export { TimezoneService, timezoneService } from './TimezoneService';
+export { RecurringReservationService } from './RecurringReservationService';

@@ -9,6 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { Restaurant } from './Restaurant';
+import { User } from './User';
 
 export enum WaitlistStatus {
   WAITING = 'waiting',
@@ -69,6 +70,15 @@ export class Waitlist {
 
   @Column({ type: 'uuid', name: 'converted_reservation_id', nullable: true })
   convertedReservationId?: string;
+
+  @Column({ type: 'uuid', name: 'user_id', nullable: true })
+  userId?: string;
+
+  @ManyToOne(() => User, (user) => user.waitlistEntries, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user?: User;
 
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.waitlistEntries, {
     onDelete: 'CASCADE',
