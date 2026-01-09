@@ -16,11 +16,25 @@ services:
       - DB_NAME=restaurant_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      # JWT Configuration
+      - JWT_SECRET=your-super-secret-jwt-key-for-development
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-for-development
+      - JWT_EXPIRES_IN=15m
+      - JWT_REFRESH_EXPIRES_IN=7d
+      # Email Configuration - Using MailHog
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_SECURE=false
+      - SMTP_USER=
+      - SMTP_PASSWORD=
+      - SMTP_FROM=noreply@tallie-restaurant.com
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mailhog:
+        condition: service_started
     volumes:
       - ./src:/app/src
     networks:
@@ -57,6 +71,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - restaurant-network
+
+  # MailHog - Email testing tool
+  # Web UI: http://localhost:8025
+  # SMTP: localhost:1025
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: restaurant-mailhog
+    ports:
+      - "1025:1025"   # SMTP server
+      - "8025:8025"   # Web UI
     networks:
       - restaurant-network
 

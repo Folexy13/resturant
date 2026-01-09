@@ -15,20 +15,28 @@ export class EmailService {
   private isConfigured: boolean;
 
   constructor() {
-    this.isConfigured = !!(config.email.user && config.email.password);
+    // Check if SMTP host is configured (MailHog doesn't need auth)
+    this.isConfigured = !!(config.email.host && config.email.host !== 'smtp.ethereal.email');
 
     if (this.isConfigured) {
-      this.transporter = nodemailer.createTransport({
+      const transportOptions: nodemailer.TransportOptions = {
         host: config.email.host,
         port: config.email.port,
         secure: config.email.secure,
-        auth: {
+      } as nodemailer.TransportOptions;
+
+      // Only add auth if credentials are provided (MailHog doesn't need them)
+      if (config.email.user && config.email.password) {
+        (transportOptions as any).auth = {
           user: config.email.user,
           pass: config.email.password,
-        },
-      });
+        };
+      }
+
+      this.transporter = nodemailer.createTransport(transportOptions);
+      console.log(`📧 Email service configured with SMTP host: ${config.email.host}:${config.email.port}`);
     } else {
-      // Create a test account for development
+      // Mock mode - just log emails
       this.transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,

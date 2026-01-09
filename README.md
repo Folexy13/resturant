@@ -2,7 +2,7 @@
 
 A comprehensive REST API for managing restaurant table reservations, built with Node.js, Express, TypeScript, PostgreSQL, and Redis.
 
-## 🚀 Features
+## Features
 
 ### Core Features
 - **Restaurant Management**: Create, update, and manage restaurants with operating hours and timezone support
@@ -15,26 +15,26 @@ A comprehensive REST API for managing restaurant table reservations, built with 
 - **Availability Checking**: Real-time availability with Redis caching
 
 ### Advanced Features
-- ✅ **JWT Authentication**: Secure API with role-based access control (Customer, Staff, Manager, Admin)
-- ✅ **Timezone Support**: Full timezone handling for restaurants in different locations
-- ✅ **Real Email Notifications**: Nodemailer integration with HTML templates (falls back to console logging)
-- ✅ **Rate Limiting**: Configurable rate limits for API endpoints
-- ✅ **Recurring Reservations**: Daily, weekly, bi-weekly, and monthly recurring bookings
-- ✅ **Redis Caching**: Availability checks cached for performance
-- ✅ **Cancel/Modify Reservations**: Full reservation lifecycle management
-- ✅ **Peak Hours Handling**: Configurable duration limits during busy times
-- ✅ **Waitlist Functionality**: Automatic waitlist when tables are unavailable
-- ✅ **Docker Compose Setup**: Complete containerized environment
-- ✅ **Reservation Status Management**: pending, confirmed, seated, completed, cancelled, no-show
-- ✅ **Seating Optimization**: Best-fit table selection algorithm
+- **JWT Authentication**: Secure API with role-based access control (Customer, Staff, Manager, Admin)
+- **Timezone Support**: Full timezone handling for restaurants in different locations
+- **Real Email Notifications**: Nodemailer integration with HTML templates via MailHog (development) or SMTP (production)
+- **Rate Limiting**: Configurable rate limits for API endpoints
+- **Recurring Reservations**: Daily, weekly, bi-weekly, and monthly recurring bookings
+- **Redis Caching**: Availability checks cached for performance
+- **Cancel/Modify Reservations**: Full reservation lifecycle management
+- **Peak Hours Handling**: Configurable duration limits during busy times
+- **Waitlist Functionality**: Automatic waitlist when tables are unavailable
+- **Docker Compose Setup**: Complete containerized environment with PostgreSQL, Redis, and MailHog
+- **Reservation Status Management**: pending, confirmed, seated, completed, cancelled, no-show
+- **Seating Optimization**: Best-fit table selection algorithm
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Docker and Docker Compose
 - Node.js 18+ (for local development)
 - npm or yarn
 
-## 🛠️ Setup Instructions
+## Setup Instructions
 
 ### Using Docker (Recommended)
 
@@ -59,6 +59,11 @@ A comprehensive REST API for managing restaurant table reservations, built with 
    http://localhost:3000
    ```
 
+5. **View emails in MailHog**
+   ```
+   http://localhost:8025
+   ```
+
 ### Local Development
 
 1. **Install dependencies**
@@ -66,9 +71,9 @@ A comprehensive REST API for managing restaurant table reservations, built with 
    npm install
    ```
 
-2. **Start PostgreSQL and Redis**
+2. **Start PostgreSQL, Redis, and MailHog**
    ```bash
-   docker-compose up -d postgres redis
+   docker-compose up -d postgres redis mailhog
    ```
 
 3. **Run in development mode**
@@ -82,9 +87,43 @@ A comprehensive REST API for managing restaurant table reservations, built with 
    npm test
    ```
 
-## 📚 API Documentation
+## Email Notifications
 
-### 🔗 Swagger UI (Interactive Documentation)
+The system sends email notifications for the following events:
+
+### Email Types
+1. **Welcome Email**: Sent when a new user registers
+2. **Reservation Confirmation**: Sent when a reservation is created
+3. **Reservation Status Update**: Sent when reservation status changes (confirmed, cancelled, seated, completed, no-show)
+4. **Waitlist Notification**: Sent when a table becomes available for a waitlisted customer
+5. **Password Reset**: Sent when a user requests a password reset
+
+### Development (MailHog)
+In development, all emails are captured by MailHog and can be viewed at:
+```
+http://localhost:8025
+```
+
+MailHog provides:
+- Web interface to view all sent emails
+- HTML and plain text email preview
+- Email source inspection
+- No actual emails are sent to real addresses
+
+### Production (SMTP)
+For production, configure the following environment variables:
+```
+SMTP_HOST=smtp.your-provider.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-username
+SMTP_PASSWORD=your-password
+SMTP_FROM=noreply@your-domain.com
+```
+
+## API Documentation
+
+### Swagger UI (Interactive Documentation)
 
 The API includes interactive Swagger documentation. Once the server is running, access it at:
 
@@ -116,7 +155,7 @@ GET /api/v1/health
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 ### Register
 ```http
@@ -199,7 +238,7 @@ Content-Type: application/json
 
 ---
 
-## 🌍 Timezone Support
+## Timezone Support
 
 ### Get Common Timezones
 ```http
@@ -232,7 +271,7 @@ Content-Type: application/json
 
 ---
 
-## 🔄 Recurring Reservations
+## Recurring Reservations
 
 ### Create Recurring Reservation
 ```http
@@ -606,10 +645,10 @@ POST /api/v1/waitlist/:id/cancel
 
 ---
 
-## 🏗️ Design Decisions
+## Design Decisions
 
 ### Architecture
-- **Layered Architecture**: Controllers → Services → Repositories
+- **Layered Architecture**: Controllers -> Services -> Repositories
 - **OOP Principles**: Classes for entities, services, and controllers
 - **Dependency Injection**: Services are instantiated in controllers
 - **Repository Pattern**: TypeORM repositories for data access
@@ -646,16 +685,18 @@ POST /api/v1/waitlist/:id/cancel
 
 9. **Status Workflow**: 
    ```
-   PENDING → CONFIRMED → SEATED → COMPLETED
-                ↓
+   PENDING -> CONFIRMED -> SEATED -> COMPLETED
+                |
+                v
             CANCELLED
-                ↓
+                |
+                v
              NO_SHOW
    ```
 
 10. **Recurring Reservations**: Support for daily, weekly, bi-weekly, and monthly patterns
 
-11. **Email Notifications**: HTML email templates with fallback to console logging
+11. **Email Notifications**: HTML email templates sent via MailHog (development) or SMTP (production)
 
 ### Assumptions
 
@@ -665,7 +706,7 @@ POST /api/v1/waitlist/:id/cancel
 4. Minimum reservation duration is 30 minutes, maximum is 240 minutes
 5. Party size must be between 1 and 20
 
-## 🔮 Future Improvements
+## Future Improvements
 
 With more time, I would add:
 
@@ -680,7 +721,7 @@ With more time, I would add:
 9. **Calendar Integration**: Google Calendar / iCal sync
 10. **Multi-language Support**: i18n for international restaurants
 
-## 📈 Scaling for Multiple Restaurants
+## Scaling for Multiple Restaurants
 
 To scale this system for multiple restaurants:
 
@@ -697,7 +738,7 @@ To scale this system for multiple restaurants:
 7. **CDN**: Cache static assets and API responses
 8. **Kubernetes**: Container orchestration for auto-scaling
 
-## 🧪 Testing
+## Testing
 
 Run the test suite:
 
@@ -712,7 +753,19 @@ npm test
 npm test -- --coverage
 ```
 
-## 📝 Environment Variables
+## Docker Services
+
+The docker-compose.yml includes the following services:
+
+| Service | Port | Description |
+|---------|------|-------------|
+| `app` | 3000 | Node.js API server |
+| `postgres` | 5432 | PostgreSQL database |
+| `redis` | 6379 | Redis cache |
+| `mailhog` | 8025 (Web), 1025 (SMTP) | Email testing tool |
+| `postgres-test` | 5433 | Test database |
+
+## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -729,18 +782,19 @@ npm test -- --coverage
 | `JWT_REFRESH_SECRET` | Refresh token secret | - |
 | `JWT_EXPIRES_IN` | Access token expiry | `15m` |
 | `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry | `7d` |
-| `SMTP_HOST` | SMTP server host | `smtp.gmail.com` |
-| `SMTP_PORT` | SMTP server port | `587` |
+| `SMTP_HOST` | SMTP server host | `mailhog` (Docker) |
+| `SMTP_PORT` | SMTP server port | `1025` (Docker) |
+| `SMTP_SECURE` | Use TLS | `false` |
 | `SMTP_USER` | SMTP username | - |
 | `SMTP_PASSWORD` | SMTP password | - |
-| `SMTP_FROM` | From email address | - |
+| `SMTP_FROM` | From email address | `noreply@tallie-restaurant.com` |
 | `RATE_LIMIT_WINDOW_MS` | Rate limit window | `900000` |
 | `RATE_LIMIT_MAX` | Max requests per window | `100` |
 
-## 📝 License
+## License
 
 MIT License
 
-## 👤 Author
+## Author
 
 Built for Tallie Backend Engineer Pre-Interview Exercise
