@@ -15,10 +15,7 @@ export const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request): string => {
-    // Use user ID if authenticated, otherwise use IP
-    return req.user?.userId || req.ip || 'unknown';
-  },
+  validate: { xForwardedForHeader: false },
 });
 
 /**
@@ -35,6 +32,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Don't count successful logins
+  validate: { xForwardedForHeader: false },
 });
 
 /**
@@ -50,9 +48,7 @@ export const reservationLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req: Request): string => {
-    return req.user?.userId || req.ip || 'unknown';
-  },
+  validate: { xForwardedForHeader: false },
 });
 
 /**
@@ -68,6 +64,7 @@ export const searchLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
 });
 
 /**
@@ -90,9 +87,7 @@ export const createRateLimiter = (options: {
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: options.skipSuccessfulRequests,
-    keyGenerator: (req: Request): string => {
-      return req.user?.userId || req.ip || 'unknown';
-    },
+    validate: { xForwardedForHeader: false },
   });
 };
 
